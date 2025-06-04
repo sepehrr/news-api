@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers\V1;
 
+use Mail;
+use App\Models\User;
+use App\Mail\ResetPasswordMail;
+use Illuminate\Auth\Events\Login;
+use App\Models\PasswordResetToken;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
+use Illuminate\Auth\Events\Registered;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\LogoutRequest;
 use App\Http\Requests\Auth\RegisterRequest;
-use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Http\Requests\Auth\SetPasswordRequest;
-use App\Http\Resources\UserResource;
-use App\Mail\ResetPasswordMail;
-use App\Models\PasswordResetToken;
-use App\Models\User;
-use Illuminate\Auth\Events\Login;
-use Illuminate\Auth\Events\Registered;
-use Mail;
+use App\Http\Requests\Auth\ResetPasswordRequest;
 
 /** @package App\Http\Controllers\V1 */
 class AuthController extends Controller
@@ -176,10 +176,9 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if ($user) {
+            $user->passwordResetTokens()->delete(); // Delete any existing tokens to prevent multiple resets
             $token = $user->passwordResetTokens()->create()->token;
-            defer(
-                fn () => Mail::to($user->email)->send(new ResetPasswordMail($token))
-            );
+            defer(fn () => Mail::to($user->email)->send(new ResetPasswordMail($token)));
         }
 
         // NOTE - for security reasons, even if user is not found, we return the same response
@@ -229,7 +228,7 @@ class AuthController extends Controller
     {
         $token = PasswordResetToken::findByToken($request->token);
         $token->user->update(['password' => $request->password]);
-        $token->delete();
+        $token->user->passwordResetTokens()->delete();
 
         return $this->success(__('Password has been set successfully.'));
     }

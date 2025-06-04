@@ -13,11 +13,9 @@ class PasswordResetToken extends Model
 
     public const TOKEN_TTL = 120; // in minutes
 
-    public $primaryKey = 'token';
-
     public $fillable = [
         'token',
-        'user_id',
+        'email',
     ];
 
     public function user()
@@ -43,7 +41,9 @@ class PasswordResetToken extends Model
         parent::booted();
 
         static::creating(function ($model) {
-            $model->token = bin2hex(random_bytes(self::TOKEN_LENGTH / 2));
+            if (!$model->token) {
+                $model->token = bin2hex(random_bytes(self::TOKEN_LENGTH / 2));
+            }
         });
     }
 }
