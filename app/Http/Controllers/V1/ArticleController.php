@@ -21,6 +21,7 @@ class ArticleController extends Controller
      *     path="/api/v1/articles",
      *     summary="Get list of articles",
      *     tags={"Articles"},
+     *     security={{"bearerAuth": {}}},
      *     @OA\Parameter(
      *         name="keyword",
      *         in="query",
@@ -78,6 +79,10 @@ class ArticleController extends Controller
      *             @OA\Property(property="links", type="object"),
      *             @OA\Property(property="meta", type="object")
      *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
      *     )
      * )
      */

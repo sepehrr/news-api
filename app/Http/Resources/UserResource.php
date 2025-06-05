@@ -7,6 +7,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * @OA\Schema(
+ *     schema="User",
  *     title="User",
  *     description="User model",
  *     @OA\Property(property="name", type="string", description="User name"),

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\V1;
 
 use Mail;
 use App\Models\User;
+use Illuminate\Http\Request;
 use App\Mail\ResetPasswordMail;
 use Illuminate\Auth\Events\Login;
 use App\Models\PasswordResetToken;
@@ -16,29 +17,33 @@ use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\SetPasswordRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
 
-/** @package App\Http\Controllers\V1 */
+/**
+ * @OA\Tag(
+ *     name="Authentication",
+ *     description="API Endpoints for user authentication"
+ * )
+ */
 class AuthController extends Controller
 {
     /**
-     * @OA/Post(
-     *     path="/v1/auth/login",
-     *     summary="User Login",
+     * @OA\Post(
+     *     path="/api/v1/auth/login",
+     *     summary="Login user and create token",
      *     tags={"Authentication"},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="email", type="string", format="email", example="test@example.com" description="User email"),
-     *             @OA\Property(property="password", type="string", format="password", example="password123", description="User password")
+     *             required={"email", "password"},
+     *             @OA\Property(property="email", type="string", format="email", example="user@example.com"),
+     *             @OA\Property(property="password", type="string", format="password", example="password123")
      *         )
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Login successful",
+     *         description="Successful login",
      *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Login successful."),
-     *             @OA\Property(property="data", type="object", ref="#/components/schemas/UserResource"),
-     *             @OA\Property(property="token", type="string", example="your_generated_token_here")
+     *             @OA\Property(property="token", type="string", example="1|abcdef123456"),
+     *             @OA\Property(property="user", ref="#/components/schemas/User")
      *         )
      *     ),
      *     @OA\Response(
@@ -52,10 +57,24 @@ class AuthController extends Controller
      *         response=422,
      *         description="Validation error",
      *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="The given data was invalid."),
-     *             @OA\Property(property="errors", type="object", additionalProperties=@OA\Schema(type="array", @OA\Items(type="string")))
+     *             @OA\Property(property="message", type="string", example="The given data was invalid"),
+     *             @OA\Property(
+     *                 property="errors",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="email",
+     *                     type="array",
+     *                     @OA\Items(type="string", example="The email field is required")
+     *                 ),
+     *                 @OA\Property(
+     *                     property="password",
+     *                     type="array",
+     *                     @OA\Items(type="string", example="The password field is required")
+     *                 )
+     *             )
      *         )
      *     )
+     * )
      */
     public function login(LoginRequest $request)
     {
@@ -67,22 +86,20 @@ class AuthController extends Controller
         $token = auth()->user()->createToken('auth_token')->plainTextToken;
 
         return $this->success(__('Login successful.'), [
-            'user' => UserResource::make(auth()->user()),
             'token' => $token,
-        ]);
-
-
+            'user' => UserResource::make(auth()->user())
+        ], 200);
     }
 
     /**
-     * @OA/Post(
-     *     path="/v1/auth/register",
-     *     summary="User Registration",
+     * @OA\Post(
+     *     path="/api/v1/auth/register",
+     *     summary="Register a new user",
      *     tags={"Authentication"},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             type="object",
+     *             required={"name", "email", "password"},
      *             @OA\Property(property="name", type="string", example="John Doe"),
      *             @OA\Property(property="email", type="string", format="email", example="test@test.com"),
      *             @OA\Property(property="password", type="string", format="password", example="password123")
@@ -90,18 +107,36 @@ class AuthController extends Controller
      *     ),
      *     @OA\Response(
      *         response=201,
-     *         description="Registration successful",
+     *         description="User registered successfully",
      *         @OA\JsonContent(
      *             @OA\Property(property="message", type="string", example="Registration successful."),
-     *             @OA\Property(property="data", type="object", ref="#/components/schemas/UserResource")
+     *             @OA\Property(property="data", type="object", ref="#/components/schemas/User")
      *         )
      *     ),
      *     @OA\Response(
      *         response=422,
      *         description="Validation error",
      *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="The given data was invalid."),
-     *             @OA\Property(property="errors", type="object", additionalProperties=@OA\Schema(type="array", @OA\Items(type="string")))
+     *             @OA\Property(property="message", type="string", example="The given data was invalid"),
+     *             @OA\Property(
+     *                 property="errors",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="name",
+     *                     type="array",
+     *                     @OA\Items(type="string", example="The name field is required")
+     *                 ),
+     *                 @OA\Property(
+     *                     property="email",
+     *                     type="array",
+     *                     @OA\Items(type="string", example="The email field is required")
+     *                 ),
+     *                 @OA\Property(
+     *                     property="password",
+     *                     type="array",
+     *                     @OA\Items(type="string", example="The password field is required")
+     *                 )
+     *             )
      *         )
      *     )
      * )
@@ -143,30 +178,38 @@ class AuthController extends Controller
     }
 
     /**
-     * @OA/Post(
-     *     path="/v1/auth/reset-password",
-     *     summary="Request Password Reset",
+     * @OA\Post(
+     *     path="/api/v1/auth/reset-password",
+     *     summary="Request password reset",
      *     tags={"Authentication"},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="email", type="string", format="email", example="example@test.com", description="User email")
+     *             required={"email"},
+     *             @OA\Property(property="email", type="string", format="email", example="user@example.com")
      *         )
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Password reset link sent",
+     *         description="Password reset email sent",
      *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Password reset link sent")
+     *             @OA\Property(property="message", type="string", example="Password reset email sent")
      *         )
      *     ),
      *     @OA\Response(
      *         response=422,
      *         description="Validation error",
      *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="The given data was invalid."),
-     *             @OA\Property(property="errors", type="object", additionalProperties=@OA\Schema(type="array", @OA\Items(type="string")))
+     *             @OA\Property(property="message", type="string", example="The given data was invalid"),
+     *             @OA\Property(
+     *                 property="errors",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="email",
+     *                     type="array",
+     *                     @OA\Items(type="string", example="The email field is required")
+     *                 )
+     *             )
      *         )
      *     )
      * )
@@ -184,25 +227,25 @@ class AuthController extends Controller
         // NOTE - for security reasons, even if user is not found, we return the same response
         // to prevent user enumeration attacks.
         // This is a common practice to avoid revealing whether an email is registered or not.
-        return $this->success(__('Password reset link sent.'));
+        return $this->success(__('Password reset email sent.'));
     }
 
     /**
-     * @OA/Post(
-     *     path="/v1/auth/set-password",
-     *     summary="Set New Password",
+     * @OA\Post(
+     *     path="/api/v1/auth/set-password",
+     *     summary="Set new password",
      *     tags={"Authentication"},
      *     @OA\RequestBody(
-     *       required=true,
-     *       @OA\JsonContent(
-     *         type="object",
-     *         @OA\Property(property="token", type="string", example="your_reset_token_here", description="Password reset token"),
-     *         @OA\Property(property="password", type="string", format="password", example="newpassword123", description="New password")
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"token", "password"},
+     *             @OA\Property(property="token", type="string", example="reset_token_123"),
+     *             @OA\Property(property="password", type="string", format="password", example="new-password123")
      *         )
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Password has been set successfully",
+     *         description="Password reset successful",
      *         @OA\JsonContent(
      *             @OA\Property(property="message", type="string", example="Password has been set successfully.")
      *         )
@@ -211,15 +254,26 @@ class AuthController extends Controller
      *         response=422,
      *         description="Validation error",
      *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="The given data was invalid."),
-     *             @OA\Property(property="errors", type="object", additionalProperties=@OA\Schema(type="array", @OA\Items(type="string")))
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="Token not found or expired",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Token not found or expired.")
+     *             @OA\Property(property="message", type="string", example="The given data was invalid"),
+     *             @OA\Property(
+     *                 property="errors",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="token",
+     *                     type="array",
+     *                     @OA\Items(type="string", example="The token field is required")
+     *                 ),
+     *                 @OA\Property(
+     *                     property="email",
+     *                     type="array",
+     *                     @OA\Items(type="string", example="The email field is required")
+     *                 ),
+     *                 @OA\Property(
+     *                     property="password",
+     *                     type="array",
+     *                     @OA\Items(type="string", example="The password field is required")
+     *                 )
+     *             )
      *         )
      *     )
      * )

@@ -117,7 +117,7 @@ class AuthTest extends TestCase
         ]);
 
         $response->assertStatus(200)
-            ->assertJson(['message' => 'Password reset link sent.']);
+            ->assertJson(['message' => 'Password reset email sent.']);
 
         Mail::assertSent(ResetPasswordMail::class, function ($mail) use ($user) {
             return $mail->hasTo($user->email);
