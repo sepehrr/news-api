@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\V1;
 
+use App\Http\Controllers\Controller;
+use App\Http\Filters\ArticleListFilter;
+use App\Http\Resources\ArticleResource;
 use App\Models\Article;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Http\Resources\ArticleResource;
-use App\Http\Filters\ArticleListFilter;
 
 /**
  * @OA\Tag(
@@ -60,9 +60,9 @@ class ArticleController extends Controller
      *     @OA\Parameter(
      *         name="source",
      *         in="query",
-     *         description="Filter by source",
+     *         description="Filter by source ID",
      *         required=false,
-     *         @OA\Schema(type="string")
+     *         @OA\Schema(type="integer")
      *     ),
      *     @OA\Parameter(
      *         name="per_page",
@@ -89,7 +89,7 @@ class ArticleController extends Controller
     public function index(Request $request, ArticleListFilter $filter)
     {
         $articles = $filter->apply()
-            ->with(['category', 'author'])
+            ->with(['category', 'author', 'source'])
             ->orderBy('published_at', 'desc')
             ->paginate($request->get('per_page', 15));
 
@@ -121,7 +121,8 @@ class ArticleController extends Controller
      */
     public function show(Article $article)
     {
-        $article->load(['category', 'author']);
+        $article->load(['category', 'author', 'source']);
+
         return new ArticleResource($article);
     }
 }

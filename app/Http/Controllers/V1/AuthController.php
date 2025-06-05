@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers\V1;
 
-use Mail;
-use App\Models\User;
-use Illuminate\Http\Request;
-use App\Mail\ResetPasswordMail;
-use Illuminate\Auth\Events\Login;
-use App\Models\PasswordResetToken;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\UserResource;
-use Illuminate\Auth\Events\Registered;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\LogoutRequest;
 use App\Http\Requests\Auth\RegisterRequest;
-use App\Http\Requests\Auth\SetPasswordRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
+use App\Http\Requests\Auth\SetPasswordRequest;
+use App\Http\Resources\UserResource;
+use App\Mail\ResetPasswordMail;
+use App\Models\PasswordResetToken;
+use App\Models\User;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Http\Request;
+use Mail;
 
 /**
  * @OA\Tag(

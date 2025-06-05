@@ -14,7 +14,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  *     @OA\Property(property="title", type="string", example="Sample Article Title"),
  *     @OA\Property(property="body", type="string", example="This is the article content..."),
  *     @OA\Property(property="published_at", type="string", format="date-time", example="2024-03-21T12:00:00+00:00"),
- *     @OA\Property(property="source", type="string", example="TechCrunch"),
+ *     @OA\Property(property="source", ref="#/components/schemas/Source"),
  *     @OA\Property(property="category", ref="#/components/schemas/Category"),
  *     @OA\Property(property="author", ref="#/components/schemas/Author")
  * )
@@ -28,7 +28,7 @@ class ArticleResource extends JsonResource
             'title' => $this->title,
             'body' => $this->body,
             'published_at' => $this->published_at->format('c'),
-            'source' => $this->source,
+            'source' => new SourceResource($this->whenLoaded('source')),
             'category' => new CategoryResource($this->whenLoaded('category')),
             'author' => new AuthorResource($this->whenLoaded('author')),
         ];

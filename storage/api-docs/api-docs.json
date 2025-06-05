@@ -77,10 +77,10 @@
                     {
                         "name": "source",
                         "in": "query",
-                        "description": "Filter by source",
+                        "description": "Filter by source ID",
                         "required": false,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     },
                     {
@@ -474,7 +474,7 @@
                                     "password": {
                                         "type": "string",
                                         "format": "password",
-                                        "example": "newpassword123"
+                                        "example": "new-password123"
                                     }
                                 },
                                 "type": "object"
@@ -569,8 +569,7 @@
                         "example": "2024-03-21T12:00:00+00:00"
                     },
                     "source": {
-                        "type": "string",
-                        "example": "TechCrunch"
+                        "$ref": "#/components/schemas/Source"
                     },
                     "category": {
                         "$ref": "#/components/schemas/Category"
@@ -624,6 +623,30 @@
                     "description": {
                         "type": "string",
                         "example": "Latest tech news and updates"
+                    }
+                },
+                "type": "object"
+            },
+            "Source": {
+                "title": "Source",
+                "description": "Source model",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "TechCrunch"
+                    },
+                    "url": {
+                        "type": "string",
+                        "format": "uri",
+                        "example": "https://techcrunch.com"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Technology news and analysis"
                     }
                 },
                 "type": "object"

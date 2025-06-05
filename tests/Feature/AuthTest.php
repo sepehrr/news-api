@@ -2,17 +2,20 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\User;
 use App\Mail\ResetPasswordMail;
 use App\Models\PasswordResetToken;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Foundation\Testing\WithFaker;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Mail;
+use Tests\TestCase;
 
 class AuthTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use RefreshDatabase;
+    use WithFaker;
+
+    public const VALID_TOKEN = "valid-token";
 
     public function test_user_can_register_with_valid_data()
     {
@@ -131,14 +134,14 @@ class AuthTest extends TestCase
     public function test_user_can_reset_password_with_valid_token()
     {
         $user = User::factory()->create();
-        $token = PasswordResetToken::create([
+        PasswordResetToken::create([
             'email' => $user->email,
-            'token' => 'valid-token'
+            'token' => self::VALID_TOKEN
         ]);
 
 
         $response = $this->postJson('/api/v1/auth/set-password', [
-            'token' => 'valid-token',
+            'token' => self::VALID_TOKEN,
             'password' => 'new-password123'
         ]);
 
@@ -147,7 +150,7 @@ class AuthTest extends TestCase
 
         // Verify the token was deleted after reset
         $this->assertDatabaseMissing('password_reset_tokens', [
-            'token' => 'valid-token'
+            'token' => self::VALID_TOKEN
         ]);
 
         // Verify we can login with new password after reset

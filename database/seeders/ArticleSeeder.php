@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\Author;
 use App\Models\Article;
+use App\Models\Author;
 use App\Models\Category;
+use App\Models\Source;
 use Faker\Factory as Faker;
 use Illuminate\Database\Seeder;
 
@@ -14,7 +15,7 @@ class ArticleSeeder extends Seeder
     {
         $faker = Faker::create();
 
-        // Ensure we have categories and authors
+        // Ensure we have categories, authors and sources
         if (Category::count() === 0) {
             $this->call(CategorySeeder::class);
         }
@@ -23,18 +24,9 @@ class ArticleSeeder extends Seeder
             $this->call(AuthorSeeder::class);
         }
 
-        $sources = [
-            'TechCrunch',
-            'Science Daily',
-            'Business Insider',
-            'Reuters',
-            'Bloomberg',
-            'The New York Times',
-            'The Guardian',
-            'BBC News',
-            'CNN',
-            'Forbes'
-        ];
+        if (Source::count() === 0) {
+            $this->call(SourceSeeder::class);
+        }
 
         // Create 50 articles
         for ($i = 0; $i < 50; $i++) {
@@ -42,7 +34,7 @@ class ArticleSeeder extends Seeder
                 'title' => $faker->sentence,
                 'body' => $faker->paragraphs(rand(3, 6), true),
                 'published_at' => $faker->dateTimeBetween('-1 year', 'now'),
-                'source' => $faker->randomElement($sources),
+                'source_id' => Source::inRandomOrder()->first()->id,
                 'category_id' => Category::inRandomOrder()->first()->id,
                 'author_id' => Author::inRandomOrder()->first()->id,
             ]);

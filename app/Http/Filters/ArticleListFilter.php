@@ -2,8 +2,6 @@
 
 namespace App\Http\Filters;
 
-use App\Http\Filters\QueryFilter;
-
 class ArticleListFilter extends QueryFilter
 {
     public function keyword($keyword)
@@ -36,7 +34,6 @@ class ArticleListFilter extends QueryFilter
 
     public function source($source)
     {
-        $this->builder->where('source', $source);
+        $this->builder->where('source_id', $source);
     }
-
 }
