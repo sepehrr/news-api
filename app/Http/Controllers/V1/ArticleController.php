@@ -73,7 +73,7 @@ class ArticleController extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Successful operation",
+     *         description="Success",
      *         @OA\JsonContent(
      *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Article")),
      *             @OA\Property(property="links", type="object"),
@@ -88,6 +88,7 @@ class ArticleController extends Controller
      */
     public function index(Request $request, ArticleListFilter $filter)
     {
+
         $articles = $filter->apply()
             ->with(['category', 'author', 'source'])
             ->orderBy('published_at', 'desc')
@@ -110,7 +111,7 @@ class ArticleController extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Successful operation",
+     *         description="Success",
      *         @OA\JsonContent(ref="#/components/schemas/Article")
      *     ),
      *     @OA\Response(

@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Routing\Controller as BaseController;
 
 /**
  * @OA\Info(
@@ -34,9 +34,10 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
  */
 class Controller extends BaseController
 {
-    use AuthorizesRequests, ValidatesRequests;
+    use AuthorizesRequests;
+    use ValidatesRequests;
 
-    protected function success($message, $data = null, $status = 200)
+    protected function success($message = 'Success', $data = null, $status = 200)
     {
         return response()->json([
             'message' => $message,
@@ -44,7 +45,7 @@ class Controller extends BaseController
         ], $status);
     }
 
-    protected function error($message, $status = 400, $errors = null)
+    protected function error($message = 'Error', $status = 400, $errors = null)
     {
         return response()->json([
             'message' => $message,

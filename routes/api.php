@@ -1,9 +1,10 @@
 <?php
 
+use App\Http\Controllers\V1\ArticleController;
+use App\Http\Controllers\V1\AuthController;
+use App\Http\Controllers\V1\PreferenceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\V1\AuthController;
-use App\Http\Controllers\V1\ArticleController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -20,4 +21,11 @@ Route::prefix('v1')->group(function () {
     // Article routes
     Route::get('/articles', [ArticleController::class, 'index']);
     Route::get('/articles/{article}', [ArticleController::class, 'show']);
+
+    // Preference routes
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/preferences', [PreferenceController::class, 'index']);
+        Route::post('/preferences', [PreferenceController::class, 'update']);
+    });
+
 });
