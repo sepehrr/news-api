@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Filters\ArticleListFilter;
 use App\Http\Resources\ArticleResource;
 use App\Models\Article;
+use App\Services\HashRequestService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * @OA\Tag(
@@ -16,6 +18,8 @@ use Illuminate\Http\Request;
  */
 class ArticleController extends Controller
 {
+    public const CACHE_TTL = 60;
+
     /**
      * @OA\Get(
      *     path="/api/v1/articles",
@@ -88,11 +92,12 @@ class ArticleController extends Controller
      */
     public function index(Request $request, ArticleListFilter $filter)
     {
-
-        $articles = $filter->apply()
-            ->with(['category', 'author', 'source'])
-            ->orderBy('published_at', 'desc')
-            ->paginate($request->get('per_page', 15));
+        $hash = HashRequestService::hash($request);
+        $articles = Cache::remember("articles:query:{$hash}", self::CACHE_TTL, function () use ($filter, $request) {
+            return $filter->apply()
+                ->with(['category', 'author', 'source'])
+                ->paginate($request->get('per_page', 15));
+        });
 
         return ArticleResource::collection($articles);
     }
@@ -122,7 +127,11 @@ class ArticleController extends Controller
      */
     public function show(Article $article)
     {
-        $article->load(['category', 'author', 'source']);
+        $article = Cache::remember("articles:{$article->id}", self::CACHE_TTL, function () use ($article) {
+            $article->load(['category', 'author', 'source']);
+
+            return $article;
+        });
 
         return new ArticleResource($article);
     }

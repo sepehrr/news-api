@@ -4,6 +4,8 @@ namespace App\Http\Filters;
 
 class ArticleListFilter extends QueryFilter
 {
+    public const DEFAULT_ORDER_BY = 'published_at';
+
     public function keyword($keyword)
     {
         $this->builder->where(function ($query) use ($keyword) {

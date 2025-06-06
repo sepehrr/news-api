@@ -86,7 +86,6 @@ class PersonalizedFeedController extends Controller
         $articles = $filter->query(Article::preferredBy())
             ->apply()
             ->with(['category', 'author', 'source'])
-            ->orderBy('published_at', 'desc')
             ->paginate($request->get('per_page', 15));
 
         return ArticleResource::collection($articles);

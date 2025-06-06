@@ -82,13 +82,13 @@ class AuthController extends Controller
             return $this->error('Invalid credentials', 401);
         }
 
-        event(new Login('sactum', auth()->user(), false));
+        event(new Login('sanctum', auth()->user(), false));
         $token = auth()->user()->createToken('auth_token')->plainTextToken;
 
         return $this->success(__('Login successful.'), [
             'token' => $token,
             'user' => UserResource::make(auth()->user())
-        ], 200);
+        ]);
     }
 
     /**
