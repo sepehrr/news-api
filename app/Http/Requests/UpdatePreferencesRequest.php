@@ -3,24 +3,23 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class UpdatePreferencesRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true; // User must be authenticated (handled by middleware)
+        return true;
     }
 
     public function rules(): array
     {
         return [
-            'categories' => ['array'],
-            'categories.*' => ['integer', Rule::exists('categories', 'id')],
-            'authors' => ['array'],
-            'authors.*' => ['integer', Rule::exists('authors', 'id')],
-            'sources' => ['array'],
-            'sources.*' => ['integer', Rule::exists('sources', 'id')],
+            'categories' => 'array',
+            'categories.*' => 'integer|exists:categories,id',
+            'authors' => 'array',
+            'authors.*' => 'integer|exists:authors,id',
+            'sources' => 'array',
+            'sources.*' => 'integer|exists:sources,id',
         ];
     }
 
