@@ -13,18 +13,23 @@ Route::get('/user', function (Request $request) {
 
 
 Route::prefix('v1')->group(function () {
-    Route::post('/auth/login', [AuthController::class, 'login'])->name('auth.login');
-    Route::post('/auth/register', [AuthController::class, 'registration'])->name('auth.register');
-    Route::post('/auth/reset-password', [AuthController::class, 'resetPassword'])->name('auth.reset-password');
-    Route::post('/auth/set-password', [AuthController::class, 'setPassword'])->name('auth.set-password');
-    Route::middleware('auth:sanctum')->post('/auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
+    // Auth routes
+    Route::middleware('throttle:60,1')->group(function () {
+        Route::post('/auth/login', [AuthController::class, 'login'])->name('auth.login');
+        Route::post('/auth/register', [AuthController::class, 'registration'])->name('auth.register');
+        Route::post('/auth/reset-password', [AuthController::class, 'resetPassword'])->name('auth.reset-password');
+        Route::post('/auth/set-password', [AuthController::class, 'setPassword'])->name('auth.set-password');
+    });
+
+    Route::middleware(['auth:sanctum', 'throttle:60,1'])->post('/auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
 
     // Article routes
-    Route::get('/articles/{article}', [ArticleController::class, 'show'])->name('articles.show');
-    Route::get('/articles', [ArticleController::class, 'index'])->name('articles.index');
+    Route::middleware('throttle:120,1')->group(function () {
+        Route::get('/articles/{article}', [ArticleController::class, 'show'])->name('articles.show');
+        Route::get('/articles', [ArticleController::class, 'index'])->name('articles.index');
+    });
 
-
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
         // Preference routes
         Route::get('/preferences', [PreferenceController::class, 'index'])->name('preferences.index');
         Route::post('/preferences', [PreferenceController::class, 'update'])->name('preferences.update');
@@ -32,5 +37,4 @@ Route::prefix('v1')->group(function () {
         // Personalized feed routes
         Route::get('/personalized-feed', [PersonalizedFeedController::class, 'index'])->name('personalized-feed.index');
     });
-
 });
