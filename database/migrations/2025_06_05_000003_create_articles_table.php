@@ -1,11 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     public function up(): void
     {
         Schema::create('articles', function (Blueprint $table) {
@@ -14,8 +13,8 @@ return new class extends Migration
             $table->text('body');
             $table->timestamp('published_at');
             $table->string('source');
-            $table->foreignId('category_id')->constrained()->onDelete('cascade');
-            $table->foreignId('author_id')->constrained()->onDelete('cascade');
+            $table->foreignId('category_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('author_id')->nullable()->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

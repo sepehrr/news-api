@@ -14,9 +14,9 @@ class PreferencesService
     /**
      * Get the preferences for a user
      *
-     * @return Collection
+     * @return array<string, array<PreferenceResource>>
      */
-    public function getPreferences(User $user = null)
+    public function getPreferences(User $user = null): array
     {
         $user = $user ?? auth()->user();
         $preferences = $user->preferences()->with('preferable')->get();
@@ -28,7 +28,12 @@ class PreferencesService
         ];
     }
 
-    public function updatePreferences(UpdatePreferencesRequest $request)
+    /**
+     * Update the preferences for a user
+     *
+     * @return array<string, array<PreferenceResource>>
+     */
+    public function updatePreferences(UpdatePreferencesRequest $request): array
     {
         $user = $request->user();
         $user->preferences()->delete();
