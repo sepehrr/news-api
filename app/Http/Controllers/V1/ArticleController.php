@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Filters\ArticleListFilter;
 use App\Http\Resources\ArticleResource;
 use App\Models\Article;
-use App\Services\HashRequestService;
+use App\Services\Interfaces\HashRequestServiceInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
@@ -19,6 +19,11 @@ use Illuminate\Support\Facades\Cache;
 class ArticleController extends Controller
 {
     public const CACHE_TTL = 60;
+
+    public function __construct(
+        protected HashRequestServiceInterface $hashRequestService
+    ) {
+    }
 
     /**
      * @OA\Get(
@@ -92,7 +97,7 @@ class ArticleController extends Controller
      */
     public function index(Request $request, ArticleListFilter $filter)
     {
-        $hash = HashRequestService::hash($request);
+        $hash = $this->hashRequestService::hash($request);
         $articles = Cache::remember("articles:query:{$hash}", self::CACHE_TTL, function () use ($filter, $request) {
             return $filter->apply()
                 ->with(['category', 'author', 'source'])

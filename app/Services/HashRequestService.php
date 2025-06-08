@@ -2,9 +2,10 @@
 
 namespace App\Services;
 
+use App\Services\Interfaces\HashRequestServiceInterface;
 use Illuminate\Http\Request;
 
-class HashRequestService
+class HashRequestService implements HashRequestServiceInterface
 {
     /**
      * Hash the request parameters

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdatePreferencesRequest;
-use App\Services\PreferencesService;
+use App\Services\Interfaces\PreferencesServiceInterface;
 use Illuminate\Http\Request;
 
 /**
@@ -16,7 +16,7 @@ use Illuminate\Http\Request;
 class PreferenceController extends Controller
 {
     public function __construct(
-        protected PreferencesService $preferencesService
+        protected PreferencesServiceInterface $preferencesService
     ) {
     }
 

@@ -8,8 +8,9 @@ use App\Models\Author;
 use App\Models\Category;
 use App\Models\Source;
 use App\Models\User;
+use App\Services\Interfaces\PreferencesServiceInterface;
 
-class PreferencesService
+class PreferencesService implements PreferencesServiceInterface
 {
     /**
      * Get the preferences for a user
