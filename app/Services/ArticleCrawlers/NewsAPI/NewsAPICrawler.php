@@ -5,11 +5,13 @@ namespace App\Services\ArticleCrawlers\NewsAPI;
 use App\Models\Article;
 use App\Models\Author;
 use App\Services\ArticleCrawlers\BaseCrawler;
+use App\Services\ArticleCrawlers\Interfaces\NewsAPIClientInterface;
+use App\Services\ArticleCrawlers\Interfaces\NewsAPICrawlerInterface;
 
-class NewsAPICrawler extends BaseCrawler
+class NewsAPICrawler extends BaseCrawler implements NewsAPICrawlerInterface
 {
     public function __construct(
-        NewsAPIClient $client,
+        NewsAPIClientInterface $client,
     ) {
         parent::__construct($client);
     }
@@ -36,7 +38,7 @@ class NewsAPICrawler extends BaseCrawler
         return 'NewsAPI';
     }
 
-    protected function getExternalId(array $article): string
+    public function getExternalId(array $article): string
     {
         return md5($article['url'] ?? $article['title']);
     }

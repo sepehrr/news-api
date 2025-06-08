@@ -4,12 +4,14 @@ namespace App\Services\ArticleCrawlers;
 
 use App\Models\Article;
 use App\Models\Source;
+use App\Services\ArticleCrawlers\Interfaces\CrawlerClientInterface;
+use App\Services\ArticleCrawlers\Interfaces\CrawlerInterface;
 use Log;
 
-abstract class BaseCrawler
+abstract class BaseCrawler implements CrawlerInterface
 {
     public function __construct(
-        protected BaseCrawlerClient $client,
+        protected CrawlerClientInterface $client,
     ) {
     }
 
@@ -22,9 +24,12 @@ abstract class BaseCrawler
                 continue;
             }
 
-            $article = $this->createArticle($article);
-
-            Log::info("Created article (#{$article->id}) {$article->title}");
+            try {
+                $article = $this->createArticle($article);
+                Log::info("Created article (#{$article->id}) {$article->title}");
+            } catch (\Exception $e) {
+                Log::error("Error creating article: {$e->getMessage()}");
+            }
         }
     }
 
@@ -39,7 +44,7 @@ abstract class BaseCrawler
 
     abstract public function sourceName(): string;
 
-    abstract protected function getExternalId(array $article): string;
+    abstract public function getExternalId(array $article): string;
 
     protected function getSource(): Source
     {

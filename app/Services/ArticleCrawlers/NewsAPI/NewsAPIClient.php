@@ -3,9 +3,10 @@
 namespace App\Services\ArticleCrawlers\NewsAPI;
 
 use App\Services\ArticleCrawlers\BaseCrawlerClient;
+use App\Services\ArticleCrawlers\Interfaces\NewsAPIClientInterface;
 use Illuminate\Support\Facades\Http;
 
-class NewsAPIClient extends BaseCrawlerClient
+class NewsAPIClient extends BaseCrawlerClient implements NewsAPIClientInterface
 {
     private string $apiKey;
 

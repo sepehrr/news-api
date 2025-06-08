@@ -2,7 +2,9 @@
 
 namespace App\Services\ArticleCrawlers;
 
-abstract class BaseCrawlerClient
+use App\Services\ArticleCrawlers\Interfaces\CrawlerClientInterface;
+
+abstract class BaseCrawlerClient implements CrawlerClientInterface
 {
     abstract public function getArticles(): array;
 

@@ -4,11 +4,13 @@ namespace App\Services\ArticleCrawlers\BBCNews;
 
 use App\Models\Article;
 use App\Services\ArticleCrawlers\BaseCrawler;
+use App\Services\ArticleCrawlers\Interfaces\BBCNewsClientInterface;
+use App\Services\ArticleCrawlers\Interfaces\BBCNewsCrawlerInterface;
 
-class BBCNewsCrawler extends BaseCrawler
+class BBCNewsCrawler extends BaseCrawler implements BBCNewsCrawlerInterface
 {
     public function __construct(
-        BBCNewsClient $client,
+        BBCNewsClientInterface $client,
     ) {
         parent::__construct($client);
     }
@@ -34,7 +36,7 @@ class BBCNewsCrawler extends BaseCrawler
         return 'BBC News';
     }
 
-    protected function getExternalId(array $article): string
+    public function getExternalId(array $article): string
     {
         return last(explode('/', $article['link']));
     }

@@ -3,9 +3,10 @@
 namespace App\Services\ArticleCrawlers\BBCNews;
 
 use App\Services\ArticleCrawlers\BaseCrawlerClient;
+use App\Services\ArticleCrawlers\Interfaces\BBCNewsClientInterface;
 use Illuminate\Support\Facades\Http;
 
-class BBCNewsClient extends BaseCrawlerClient
+class BBCNewsClient extends BaseCrawlerClient implements BBCNewsClientInterface
 {
     public function getArticles(): array
     {

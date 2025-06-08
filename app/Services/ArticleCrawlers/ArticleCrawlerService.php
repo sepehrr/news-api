@@ -2,17 +2,19 @@
 
 namespace App\Services\ArticleCrawlers;
 
-use App\Services\ArticleCrawlers\BBCNews\BBCNewsCrawler;
-use App\Services\ArticleCrawlers\NewsAPI\NewsAPICrawler;
+use App\Services\ArticleCrawlers\Interfaces\BBCNewsCrawlerInterface;
+use App\Services\ArticleCrawlers\Interfaces\CrawlerInterface;
+use App\Services\ArticleCrawlers\Interfaces\NewsAPICrawlerInterface;
 use Log;
 
 class ArticleCrawlerService
 {
+    /** @var CrawlerInterface[] */
     private array $crawlers;
 
     public function __construct(
-        BBCNewsCrawler $bbcNewsCrawler,
-        NewsAPICrawler $newsAPICrawler,
+        BBCNewsCrawlerInterface $bbcNewsCrawler,
+        NewsAPICrawlerInterface $newsAPICrawler,
     ) {
         $this->crawlers = [
             $bbcNewsCrawler,
@@ -23,7 +25,7 @@ class ArticleCrawlerService
     public function crawl(): void
     {
         foreach ($this->crawlers as $crawler) {
-            Log::info('Crawling ' . $crawler->sourceTitle());
+            Log::info('Crawling ' . $crawler->sourceName());
             $crawler->createArticles();
         }
     }
