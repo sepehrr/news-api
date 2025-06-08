@@ -3,6 +3,7 @@
 namespace App\Services\ArticleCrawlers\BBCNews;
 
 use App\Models\Article;
+use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use App\Services\ArticleCrawlers\BaseCrawler;
 use App\Services\ArticleCrawlers\Interfaces\BBCNewsClientInterface;
 use App\Services\ArticleCrawlers\Interfaces\BBCNewsCrawlerInterface;
@@ -11,6 +12,7 @@ class BBCNewsCrawler extends BaseCrawler implements BBCNewsCrawlerInterface
 {
     public function __construct(
         BBCNewsClientInterface $client,
+        protected ArticleRepositoryInterface $articleRepository
     ) {
         parent::__construct($client);
     }
@@ -22,7 +24,7 @@ class BBCNewsCrawler extends BaseCrawler implements BBCNewsCrawlerInterface
 
     public function createArticle(array $article): Article
     {
-        return Article::create([
+        return $this->articleRepository->create([
             'title' => $article['title'],
             'body' => $article['description'],
             'published_at' => $article['published_at'] ? date('Y-m-d H:i:s', strtotime($article['published_at'])) : now(),

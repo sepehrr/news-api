@@ -6,10 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Filters\ArticleListFilter;
 use App\Http\Resources\ArticleResource;
 use App\Models\Article;
+use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use Illuminate\Http\Request;
 
 class PersonalizedFeedController extends Controller
 {
+    public function __construct(
+        protected ArticleRepositoryInterface $articleRepository
+    ) {
+    }
+
     /**
      * @OA\Get(
      *     path="/api/v1/personalized-feed",
@@ -82,11 +88,11 @@ class PersonalizedFeedController extends Controller
      */
     public function index(Request $request, ArticleListFilter $filter)
     {
-
-        $articles = $filter->query(Article::preferredBy())
-            ->apply()
-            ->with(['category', 'author', 'source'])
-            ->paginate($request->get('per_page', 15));
+        $articles = $this->articleRepository->getPreferredByUser(
+            auth()->user(),
+            $request->all(),
+            $request->get('per_page', 15)
+        );
 
         return ArticleResource::collection($articles);
     }

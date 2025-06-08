@@ -2,9 +2,7 @@
 
 namespace App\Http\Filters;
 
-use App\Models\Article;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class QueryFilter
@@ -15,17 +13,18 @@ class QueryFilter
 
     protected $builder;
 
-    protected $request;
-
-    public function __construct(Request $request)
-    {
-        $this->request = $request;
-        $this->builder = Article::query();
-    }
+    protected array $filters = [];
 
     public function query(Builder $query): self
     {
         $this->builder = $query;
+
+        return $this;
+    }
+
+    public function filters(array $filters): self
+    {
+        $this->filters = $filters;
 
         return $this;
     }
@@ -35,7 +34,7 @@ class QueryFilter
      */
     public function apply(string $orderBy = null, string $direction = null): Builder
     {
-        foreach ($this->request->all() as $key => $value) {
+        foreach ($this->filters as $key => $value) {
             $functionName = Str::camel($key);
             if (method_exists($this, $functionName)) {
                 $this->$functionName($value);
