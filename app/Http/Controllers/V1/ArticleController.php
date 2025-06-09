@@ -6,10 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Filters\ArticleListFilter;
 use App\Http\Resources\ArticleResource;
 use App\Models\Article;
-use App\Repositories\Interfaces\ArticleRepositoryInterface;
-use App\Services\Interfaces\HashRequestServiceInterface;
+use App\Services\Interfaces\ArticleServiceInterface;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 /**
  * @OA\Tag(
@@ -19,11 +17,8 @@ use Illuminate\Support\Facades\Cache;
  */
 class ArticleController extends Controller
 {
-    public const CACHE_TTL = 60;
-
     public function __construct(
-        protected HashRequestServiceInterface $hashRequestService,
-        protected ArticleRepositoryInterface $articleRepository
+        protected ArticleServiceInterface $articleService
     ) {
     }
 
@@ -99,13 +94,10 @@ class ArticleController extends Controller
      */
     public function index(Request $request, ArticleListFilter $filter)
     {
-        $hash = $this->hashRequestService::hash($request);
-        $articles = Cache::remember("articles:query:{$hash}", self::CACHE_TTL, function () use ($request) {
-            return $this->articleRepository->getPaginated(
-                $request->all(),
-                $request->get('per_page', 15)
-            );
-        });
+        $articles = $this->articleService->getPaginatedArticles(
+            $request,
+            $request->get('per_page', 15)
+        );
 
         return ArticleResource::collection($articles);
     }
@@ -135,9 +127,7 @@ class ArticleController extends Controller
      */
     public function show(Article $article)
     {
-        $article = Cache::remember("articles:{$article->id}", self::CACHE_TTL, function () use ($article) {
-            return $this->articleRepository->findById($article->id);
-        });
+        $article = $this->articleService->getArticleById($article->id);
 
         return new ArticleResource($article);
     }

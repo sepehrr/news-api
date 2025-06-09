@@ -5,14 +5,13 @@ namespace App\Http\Controllers\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Filters\ArticleListFilter;
 use App\Http\Resources\ArticleResource;
-use App\Models\Article;
-use App\Repositories\Interfaces\ArticleRepositoryInterface;
+use App\Services\Interfaces\ArticleServiceInterface;
 use Illuminate\Http\Request;
 
 class PersonalizedFeedController extends Controller
 {
     public function __construct(
-        protected ArticleRepositoryInterface $articleRepository
+        protected ArticleServiceInterface $articleService
     ) {
     }
 
@@ -88,9 +87,9 @@ class PersonalizedFeedController extends Controller
      */
     public function index(Request $request, ArticleListFilter $filter)
     {
-        $articles = $this->articleRepository->getPreferredByUser(
-            auth()->user(),
-            $request->all(),
+        $articles = $this->articleService->getPersonalizedFeed(
+            $request->user(),
+            $request,
             $request->get('per_page', 15)
         );
 

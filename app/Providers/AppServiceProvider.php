@@ -12,7 +12,9 @@ use App\Services\ArticleCrawlers\Interfaces\NewsAPIClientInterface;
 use App\Services\ArticleCrawlers\Interfaces\NewsAPICrawlerInterface;
 use App\Services\ArticleCrawlers\NewsAPI\NewsAPIClient;
 use App\Services\ArticleCrawlers\NewsAPI\NewsAPICrawler;
+use App\Services\ArticleService;
 use App\Services\HashRequestService;
+use App\Services\Interfaces\ArticleServiceInterface;
 use App\Services\Interfaces\HashRequestServiceInterface;
 use App\Services\Interfaces\PreferencesServiceInterface;
 use App\Services\PreferencesService;
@@ -28,6 +30,7 @@ class AppServiceProvider extends ServiceProvider
         // Bind service interfaces
         $this->app->bind(PreferencesServiceInterface::class, PreferencesService::class);
         $this->app->bind(HashRequestServiceInterface::class, HashRequestService::class);
+        $this->app->bind(ArticleServiceInterface::class, ArticleService::class);
 
         // Bind repository interfaces
         $this->app->bind(ArticleRepositoryInterface::class, ArticleRepository::class);
