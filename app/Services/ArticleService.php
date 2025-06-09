@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Http\Requests\Article\CreateArticleRequest;
 use App\Models\Article;
 use App\Models\User;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
@@ -10,6 +11,8 @@ use App\Services\Interfaces\HashRequestServiceInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class ArticleService implements ArticleServiceInterface
 {
@@ -49,5 +52,29 @@ class ArticleService implements ArticleServiceInterface
     public function getPersonalizedFeed(User $user, Request $request, int $perPage = 15): LengthAwarePaginator
     {
         return $this->articleRepository->getPreferredByUser($user, $request->all(), $perPage);
+    }
+
+    /**
+     * Create a new article
+     *
+     * @throws ValidationException
+     */
+    public function create(array $data): Article
+    {
+        // Validate the data
+        $validator = Validator::make($data, (new CreateArticleRequest())->rules());
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        // Check if article already exists
+        if ($this->articleRepository->existsByExternalId($data['external_id'], $data['source_id'])) {
+            throw ValidationException::withMessages([
+                'external_id' => 'An article with this external ID already exists for this source.'
+            ]);
+        }
+
+        return $this->articleRepository->create($data);
     }
 }

@@ -4,10 +4,11 @@ namespace App\Services\ArticleCrawlers\NewsAPI;
 
 use App\Models\Article;
 use App\Models\Author;
-use App\Repositories\Interfaces\ArticleRepositoryInterface;
+use App\Repositories\Interfaces\SourceRepositoryInterface;
 use App\Services\ArticleCrawlers\BaseCrawler;
 use App\Services\ArticleCrawlers\Interfaces\NewsAPIClientInterface;
 use App\Services\ArticleCrawlers\Interfaces\NewsAPICrawlerInterface;
+use App\Services\Interfaces\ArticleServiceInterface;
 use Illuminate\Validation\ValidationException;
 use Log;
 
@@ -15,9 +16,10 @@ class NewsAPICrawler extends BaseCrawler implements NewsAPICrawlerInterface
 {
     public function __construct(
         NewsAPIClientInterface $client,
-        protected ArticleRepositoryInterface $articleRepository
+        ArticleServiceInterface $articleService,
+        SourceRepositoryInterface $sourceRepository
     ) {
-        parent::__construct($client);
+        parent::__construct($client, $articleService, $sourceRepository);
     }
 
     public function getArticles(): array
@@ -28,7 +30,7 @@ class NewsAPICrawler extends BaseCrawler implements NewsAPICrawlerInterface
     public function createArticle(array $article): Article
     {
         try {
-            return $this->articleRepository->create([
+            return $this->articleService->create([
                 'title' => $article['title'],
                 'body' => $article['description'] ?? $article['content'] ?? '',
                 'published_at' => $article['publishedAt'] ? date('Y-m-d H:i:s', strtotime($article['publishedAt'])) : now(),

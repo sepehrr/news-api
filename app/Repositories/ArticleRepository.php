@@ -3,13 +3,10 @@
 namespace App\Repositories;
 
 use App\Http\Filters\ArticleListFilter;
-use App\Http\Requests\Article\CreateArticleRequest;
 use App\Models\Article;
 use App\Models\User;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 
 class ArticleRepository implements ArticleRepositoryInterface
 {
@@ -44,25 +41,8 @@ class ArticleRepository implements ArticleRepositoryInterface
             ->paginate($perPage);
     }
 
-    /**
-     * @throws ValidationException
-     */
     public function create(array $data): Article
     {
-        // Validate the data
-        $validator = Validator::make($data, (new CreateArticleRequest())->rules());
-
-        if ($validator->fails()) {
-            throw new ValidationException($validator);
-        }
-
-        // Check if article already exists
-        if ($this->existsByExternalId($data['external_id'], $data['source_id'])) {
-            throw ValidationException::withMessages([
-                'external_id' => 'An article with this external ID already exists for this source.'
-            ]);
-        }
-
         return $this->model->create($data);
     }
 

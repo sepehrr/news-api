@@ -5,9 +5,10 @@ namespace Tests\Unit\Services\ArticleCrawlers\NewsAPI;
 use App\Models\Article;
 use App\Models\Author;
 use App\Models\Source;
-use App\Repositories\Interfaces\ArticleRepositoryInterface;
+use App\Repositories\Interfaces\SourceRepositoryInterface;
 use App\Services\ArticleCrawlers\NewsAPI\NewsAPIClient;
 use App\Services\ArticleCrawlers\NewsAPI\NewsAPICrawler;
+use App\Services\Interfaces\ArticleServiceInterface;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery;
 use Tests\TestCase;
@@ -27,7 +28,7 @@ class NewsAPICrawlerTest extends TestCase
         parent::setUp();
 
         $this->mockClient = Mockery::mock(NewsAPIClient::class);
-        $this->crawler = new NewsAPICrawler($this->mockClient, app(ArticleRepositoryInterface::class));
+        $this->crawler = new NewsAPICrawler($this->mockClient, app(ArticleServiceInterface::class), app(SourceRepositoryInterface::class));
         $this->source = Source::factory()->create(['name' => $this->crawler->sourceName()]);
     }
 

@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Repositories\ArticleRepository;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
+use App\Repositories\Interfaces\SourceRepositoryInterface;
+use App\Repositories\SourceRepository;
 use App\Services\ArticleCrawlers\BBCNews\BBCNewsClient;
 use App\Services\ArticleCrawlers\BBCNews\BBCNewsCrawler;
 use App\Services\ArticleCrawlers\Interfaces\BBCNewsClientInterface;
@@ -34,6 +36,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Bind repository interfaces
         $this->app->bind(ArticleRepositoryInterface::class, ArticleRepository::class);
+        $this->app->bind(SourceRepositoryInterface::class, SourceRepository::class);
 
         // Bind BBC News interfaces
         $this->app->bind(BBCNewsCrawlerInterface::class, BBCNewsCrawler::class);

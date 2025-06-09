@@ -23,4 +23,11 @@ interface ArticleServiceInterface
      * Get personalized feed for a user
      */
     public function getPersonalizedFeed(User $user, Request $request, int $perPage = 15): LengthAwarePaginator;
+
+    /**
+     * Create a new article
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function create(array $data): Article;
 }

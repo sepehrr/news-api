@@ -4,14 +4,20 @@ namespace App\Services\ArticleCrawlers;
 
 use App\Models\Article;
 use App\Models\Source;
+use App\Repositories\Interfaces\SourceRepositoryInterface;
 use App\Services\ArticleCrawlers\Interfaces\CrawlerClientInterface;
 use App\Services\ArticleCrawlers\Interfaces\CrawlerInterface;
+use App\Services\Interfaces\ArticleServiceInterface;
 use Log;
 
 abstract class BaseCrawler implements CrawlerInterface
 {
+    protected ?Source $source = null;
+
     public function __construct(
         protected CrawlerClientInterface $client,
+        protected ArticleServiceInterface $articleService,
+        protected SourceRepositoryInterface $sourceRepository
     ) {
     }
 
@@ -48,8 +54,10 @@ abstract class BaseCrawler implements CrawlerInterface
 
     protected function getSource(): Source
     {
-        return Source::firstOrCreate([
-            'name' => $this->sourceName(),
-        ]);
+        if (!$this->source) {
+            $this->source = $this->sourceRepository->findByName($this->sourceName());
+        }
+
+        return $this->source;
     }
 }
