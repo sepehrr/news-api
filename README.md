@@ -7,18 +7,56 @@ We'll use the Laravel framework to build the application.
 
 ## How to Run
 
-First run dependency installation commands:
+### Environment Variables
+
+Then run the following command:
+
+```bash
+cp .env.example .env
+```
+
+After copying the `.env.example` file to `.env`, you'll need to configure the following environment variables:
+
+```bash
+# Database Configuration
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=laravel
+DB_USERNAME=sail
+DB_PASSWORD=password
+
+# Mail Configuration (if needed)
+MAIL_MAILER=smtp
+MAIL_HOST=mailpit
+MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS="hello@example.com"
+MAIL_FROM_NAME="${APP_NAME}"
+
+# News API Configuration
+NEWS_API_KEY=your_api_key_here
+```
+
+Make sure to replace the placeholder values with your actual configuration values.
+
+### Installing dependencies
+
+Run dependency installation commands:
 
 ```bash
 composer install
 ```
 
-Then run the following commands:
+Then we can run this command to set keys for the application in `.env`:
 
 ```bash
-cp .env.example .env
 php artisan key:generate
 ```
+
+### Run project using Docker/Laravel Sail
 
 Please make sure you have docker installed on your machine. You can download it from [Docker Website](https://docs.docker.com/get-docker/).
 
@@ -48,36 +86,9 @@ sail artisan migrate --seed
 
 This will start the application in the background. You can access the application by visiting `http://localhost:80` in your browser.
 
+### Run With Laravel Herd
+
 If you prefer, there are other ways to run the application, for example, you can use [Laravel Herd](https://laravel.com/docs/12.x/installation#installation-using-herd) to run the application.
-
-## Environment Variables
-
-After copying the `.env.example` file to `.env`, you'll need to configure the following environment variables:
-
-```bash
-# Database Configuration
-DB_CONNECTION=mysql
-DB_HOST=mysql
-DB_PORT=3306
-DB_DATABASE=laravel
-DB_USERNAME=sail
-DB_PASSWORD=password
-
-# Mail Configuration (if needed)
-MAIL_MAILER=smtp
-MAIL_HOST=mailpit
-MAIL_PORT=1025
-MAIL_USERNAME=null
-MAIL_PASSWORD=null
-MAIL_ENCRYPTION=null
-MAIL_FROM_ADDRESS="hello@example.com"
-MAIL_FROM_NAME="${APP_NAME}"
-
-# News API Configuration
-NEWS_API_KEY=your_api_key_here
-```
-
-Make sure to replace the placeholder values with your actual configuration values.
 
 ## Running Tests
 
