@@ -9,10 +9,12 @@ use Illuminate\Http\Request;
 
 interface ArticleServiceInterface
 {
+    public const PER_PAGE = 15;
+
     /**
      * Get paginated list of articles with filters
      */
-    public function getPaginatedArticles(Request $request, int $perPage = 15): LengthAwarePaginator;
+    public function getPaginatedArticles(Request $request, int $perPage = self::PER_PAGE): LengthAwarePaginator;
 
     /**
      * Get article by ID
@@ -22,7 +24,7 @@ interface ArticleServiceInterface
     /**
      * Get personalized feed for a user
      */
-    public function getPersonalizedFeed(User $user, Request $request, int $perPage = 15): LengthAwarePaginator;
+    public function getPersonalizedFeed(User $user, Request $request, int $perPage = self::PER_PAGE): LengthAwarePaginator;
 
     /**
      * Create a new article

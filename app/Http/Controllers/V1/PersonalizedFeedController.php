@@ -10,8 +10,10 @@ use Illuminate\Http\Request;
 
 class PersonalizedFeedController extends Controller
 {
+    public const PER_PAGE = 15;
+
     public function __construct(
-        protected ArticleServiceInterface $articleService
+        private ArticleServiceInterface $articleService
     ) {
     }
 
@@ -90,7 +92,7 @@ class PersonalizedFeedController extends Controller
         $articles = $this->articleService->getPersonalizedFeed(
             $request->user(),
             $request,
-            $request->get('per_page', 15)
+            $request->get('per_page', self::PER_PAGE)
         );
 
         return ArticleResource::collection($articles);

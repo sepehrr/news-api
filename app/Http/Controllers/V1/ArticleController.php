@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Filters\ArticleListFilter;
 use App\Http\Resources\ArticleResource;
 use App\Models\Article;
 use App\Services\Interfaces\ArticleServiceInterface;
@@ -17,8 +16,10 @@ use Illuminate\Http\Request;
  */
 class ArticleController extends Controller
 {
+    public const PER_PAGE = 15;
+
     public function __construct(
-        protected ArticleServiceInterface $articleService
+        private ArticleServiceInterface $articleService
     ) {
     }
 
@@ -92,11 +93,11 @@ class ArticleController extends Controller
      *     )
      * )
      */
-    public function index(Request $request, ArticleListFilter $filter)
+    public function index(Request $request)
     {
         $articles = $this->articleService->getPaginatedArticles(
             $request,
-            $request->get('per_page', 15)
+            $request->get('per_page', self::PER_PAGE)
         );
 
         return ArticleResource::collection($articles);

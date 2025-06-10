@@ -9,13 +9,8 @@ use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Http\Requests\Auth\SetPasswordRequest;
 use App\Http\Resources\UserResource;
-use App\Mail\ResetPasswordMail;
-use App\Models\PasswordResetToken;
-use App\Models\User;
-use Illuminate\Auth\Events\Login;
-use Illuminate\Auth\Events\Registered;
+use App\Services\Auth\AuthServiceInterface;
 use Illuminate\Http\Request;
-use Mail;
 
 /**
  * @OA\Tag(
@@ -25,6 +20,11 @@ use Mail;
  */
 class AuthController extends Controller
 {
+    public function __construct(
+        private AuthServiceInterface $authService
+    ) {
+    }
+
     /**
      * @OA\Post(
      *     path="/api/v1/auth/login",
@@ -78,17 +78,16 @@ class AuthController extends Controller
      */
     public function login(LoginRequest $request)
     {
-        if (!auth()->attempt($request->validated())) {
-            return $this->error('Invalid credentials', 401);
+        try {
+            $token = $this->authService->login($request->validated());
+
+            return $this->success(__('Login successful.'), [
+                'token' => $token,
+                'user' => UserResource::make(auth()->user())
+            ]);
+        } catch (\Exception $e) {
+            return $this->error($e->getMessage(), $e->getCode() ?: 401);
         }
-
-        event(new Login('sanctum', auth()->user(), false));
-        $token = auth()->user()->createToken('auth_token')->plainTextToken;
-
-        return $this->success(__('Login successful.'), [
-            'token' => $token,
-            'user' => UserResource::make(auth()->user())
-        ]);
     }
 
     /**
@@ -143,8 +142,7 @@ class AuthController extends Controller
      */
     public function registration(RegisterRequest $request)
     {
-        $user = User::create($request->validated());
-        event(new Registered(auth()->user()));
+        $user = $this->authService->register($request->validated());
 
         return $this->success(__('Registration successful.'), UserResource::make($user), 201);
     }
@@ -172,7 +170,7 @@ class AuthController extends Controller
      */
     public function logout(LogoutRequest $request)
     {
-        auth()->user()->currentAccessToken()->delete();
+        $this->authService->logout();
 
         return $this->success(__('Logout successful.'));
     }
@@ -216,17 +214,8 @@ class AuthController extends Controller
      */
     public function resetPassword(ResetPasswordRequest $request)
     {
-        $user = User::where('email', $request->email)->first();
+        $this->authService->resetPassword($request->validated('email'));
 
-        if ($user) {
-            $user->passwordResetTokens()->delete(); // Delete any existing tokens to prevent multiple resets
-            $token = $user->passwordResetTokens()->create()->token;
-            defer(fn () => Mail::to($user->email)->send(new ResetPasswordMail($token)));
-        }
-
-        // NOTE - for security reasons, even if user is not found, we return the same response
-        // to prevent user enumeration attacks.
-        // This is a common practice to avoid revealing whether an email is registered or not.
         return $this->success(__('Password reset email sent.'));
     }
 
@@ -280,9 +269,10 @@ class AuthController extends Controller
      */
     public function setPassword(SetPasswordRequest $request)
     {
-        $token = PasswordResetToken::findByToken($request->token);
-        $token->user->update(['password' => $request->password]);
-        $token->user->passwordResetTokens()->delete();
+        $this->authService->setPassword(
+            $request->validated('token'),
+            $request->validated('password')
+        );
 
         return $this->success(__('Password has been set successfully.'));
     }
