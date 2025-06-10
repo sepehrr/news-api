@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,6 +11,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Article extends Model
 {
     use HasFactory;
+
+    public const PREFERABLE_RELATIONS = [
+        'category' => Category::class,
+        'author' => Author::class,
+        'source' => Source::class,
+    ];
 
     protected $fillable = [
         'title',
@@ -50,22 +57,21 @@ class Article extends Model
 
         $preferences = $user->preferences()->get();
 
-        $preferableTypes = [
-            'category' => Category::class,
-            'author' => Author::class,
-            'source' => Source::class,
-        ];
-
-        foreach ($preferableTypes as $type => $class) {
-
-            $preferredIds = $preferences->where('preferable_type', $class)->pluck('preferable_id')->toArray();
-
-            if (count($preferredIds) > 0) {
-                $query->whereHas($type, function ($query) use ($preferredIds) {
-                    $query->whereIn('id', $preferredIds);
-                });
-            }
+        foreach (self::PREFERABLE_RELATIONS as $type => $class) {
+            $this->filterByPreferredIds($query, $preferences, $type, $class);
         }
 
+    }
+
+    private function filterByPreferredIds(Builder $query, Collection $preferences, string $type, string $class)
+    {
+
+        $preferredIds = $preferences->where('preferable_type', $class)->pluck('preferable_id')->toArray();
+
+        if (count($preferredIds) > 0) {
+            $query->whereHas($type, function ($query) use ($preferredIds) {
+                $query->whereIn('id', $preferredIds);
+            });
+        }
     }
 }

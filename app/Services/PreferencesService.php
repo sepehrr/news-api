@@ -12,6 +12,12 @@ use App\Services\Interfaces\PreferencesServiceInterface;
 
 class PreferencesService implements PreferencesServiceInterface
 {
+    public const PREFERABLE_TYPES = [
+        'categories' => Category::class,
+        'authors' => Author::class,
+        'sources' => Source::class,
+    ];
+
     /**
      * Get the preferences for a user
      *
@@ -40,24 +46,33 @@ class PreferencesService implements PreferencesServiceInterface
         $user->preferences()->delete();
 
         $preferences = [];
-        $preferableTypes = [
-            'categories' => Category::class,
-            'authors' => Author::class,
-            'sources' => Source::class,
-        ];
 
-        foreach ($preferableTypes as $preferableType => $preferableClass) {
-            $preferableIds = $request->{$preferableType} ?? [];
-            foreach ($preferableIds as $preferableId) {
-                $preferences[] = $user->preferences()->make([
-                    'preferable_id' => $preferableId,
-                    'preferable_type' => $preferableClass,
-                ]);
-            }
+        foreach (self::PREFERABLE_TYPES as $preferableType => $preferableClass) {
+            $preferences = array_merge(
+                $preferences,
+                $this->createPreferencesForType($user, $request->{$preferableType} ?? [], $preferableClass)
+            );
         }
 
         $user->preferences()->saveMany($preferences);
 
         return $this->getPreferences($user);
+    }
+
+    /**
+     * Create preferences for a type
+     */
+    private function createPreferencesForType(User $user, array $preferableIds, string $preferableClass): array
+    {
+        $preferences = [];
+
+        foreach ($preferableIds as $preferableId) {
+            $preferences[] = $user->preferences()->make([
+                'preferable_id' => $preferableId,
+                'preferable_type' => $preferableClass,
+            ]);
+        }
+
+        return $preferences;
     }
 }
