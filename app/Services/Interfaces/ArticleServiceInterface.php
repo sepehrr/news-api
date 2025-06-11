@@ -5,7 +5,6 @@ namespace App\Services\Interfaces;
 use App\Models\Article;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Http\Request;
 
 interface ArticleServiceInterface
 {
@@ -14,7 +13,7 @@ interface ArticleServiceInterface
     /**
      * Get paginated list of articles with filters
      */
-    public function getPaginatedArticles(Request $request, int $perPage = self::PER_PAGE): LengthAwarePaginator;
+    public function getPaginatedArticles(array $filters, int $perPage = self::PER_PAGE): LengthAwarePaginator;
 
     /**
      * Get article by ID
@@ -24,7 +23,7 @@ interface ArticleServiceInterface
     /**
      * Get personalized feed for a user
      */
-    public function getPersonalizedFeed(User $user, Request $request, int $perPage = self::PER_PAGE): LengthAwarePaginator;
+    public function getPersonalizedFeed(User $user, array $filters, int $perPage = self::PER_PAGE): LengthAwarePaginator;
 
     /**
      * Create a new article

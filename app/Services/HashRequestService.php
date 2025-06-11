@@ -3,15 +3,14 @@
 namespace App\Services;
 
 use App\Services\Interfaces\HashRequestServiceInterface;
-use Illuminate\Http\Request;
 
 class HashRequestService implements HashRequestServiceInterface
 {
     /**
      * Hash the request parameters
      */
-    public static function hash(Request $request): string
+    public function hash(string $prefix, array $filters): string
     {
-        return md5(collect($request->all())->sortKeys()->toJson());
+        return $prefix . ':' . md5($prefix . collect($filters)->sortKeys()->toJson());
     }
 }

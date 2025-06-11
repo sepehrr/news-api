@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Filters\ArticleListFilter;
 use App\Http\Resources\ArticleResource;
 use App\Services\Interfaces\ArticleServiceInterface;
 use Illuminate\Http\Request;
@@ -87,11 +86,11 @@ class PersonalizedFeedController extends Controller
      *     )
      * )
      */
-    public function index(Request $request, ArticleListFilter $filter)
+    public function index(Request $request)
     {
         $articles = $this->articleService->getPersonalizedFeed(
             $request->user(),
-            $request,
+            $request->all(),
             $request->get('per_page', self::PER_PAGE)
         );
 

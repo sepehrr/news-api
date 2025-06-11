@@ -13,6 +13,8 @@ use Illuminate\Http\Request;
  *     name="Articles",
  *     description="API Endpoints for managing articles"
  * )
+ *
+ * @property \App\Services\ArticleService $articleService
  */
 class ArticleController extends Controller
 {
@@ -96,7 +98,7 @@ class ArticleController extends Controller
     public function index(Request $request)
     {
         $articles = $this->articleService->getPaginatedArticles(
-            $request,
+            $request->all(),
             $request->get('per_page', self::PER_PAGE)
         );
 

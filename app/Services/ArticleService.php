@@ -9,11 +9,16 @@ use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use App\Services\Interfaces\ArticleServiceInterface;
 use App\Services\Interfaces\HashRequestServiceInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * @property \App\Repositories\ArticleRepository $articleRepository
+ * @property \App\Services\HashRequestService $hashRequestService
+ */
 class ArticleService implements ArticleServiceInterface
 {
     public const CACHE_TTL = 60;
@@ -27,12 +32,12 @@ class ArticleService implements ArticleServiceInterface
     /**
      * Get paginated list of articles with filters
      */
-    public function getPaginatedArticles(Request $request, int $perPage = self::PER_PAGE): LengthAwarePaginator
+    public function getPaginatedArticles(array $filters, int $perPage = self::PER_PAGE): LengthAwarePaginator
     {
-        $hash = $this->hashRequestService::hash($request);
+        $hash = $this->hashRequestService->hash('articles:query', $filters);
 
-        return Cache::remember("articles:query:{$hash}", self::CACHE_TTL, function () use ($request, $perPage) {
-            return $this->articleRepository->getPaginated($request->all(), $perPage);
+        return Cache::remember("articles:query:{$hash}", self::CACHE_TTL, function () use ($filters, $perPage) {
+            return $this->articleRepository->getPaginated($filters, $perPage);
         });
     }
 
@@ -41,17 +46,23 @@ class ArticleService implements ArticleServiceInterface
      */
     public function getArticleById(int $id): Article
     {
-        return Cache::remember("articles:{$id}", self::CACHE_TTL, function () use ($id) {
-            return $this->articleRepository->findById($id);
-        });
+        try {
+            return Cache::remember("articles:{$id}", self::CACHE_TTL, function () use ($id) {
+                return $this->articleRepository->findByIdOrFail($id);
+            });
+        } catch (ModelNotFoundException $e) {
+            Log::error('Article not found', ['id' => $id]);
+
+            throw $e;
+        }
     }
 
     /**
      * Get personalized feed for a user
      */
-    public function getPersonalizedFeed(User $user, Request $request, int $perPage = self::PER_PAGE): LengthAwarePaginator
+    public function getPersonalizedFeed(User $user, array $filters, int $perPage = self::PER_PAGE): LengthAwarePaginator
     {
-        return $this->articleRepository->getPreferredByUser($user, $request->all(), $perPage);
+        return $this->articleRepository->getPreferredByUser($user, $filters, $perPage);
     }
 
     /**

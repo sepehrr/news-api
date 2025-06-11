@@ -33,6 +33,12 @@ class ArticleRepository implements ArticleRepositoryInterface
             ->find($id);
     }
 
+    public function findByIdOrFail(int $id): Article
+    {
+        return $this->model->with(['category', 'author', 'source'])
+            ->findOrFail($id);
+    }
+
     public function getPreferredByUser(User $user = null, array $filters = [], int $perPage = self::PER_PAGE): LengthAwarePaginator
     {
         $query = $this->model->newQuery();

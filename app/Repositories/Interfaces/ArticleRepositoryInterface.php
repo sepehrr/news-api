@@ -21,6 +21,11 @@ interface ArticleRepositoryInterface
     public function findById(int $id): ?Article;
 
     /**
+     * Get article by ID with relations
+     */
+    public function findByIdOrFail(int $id): Article;
+
+    /**
      * Get articles preferred by user
      */
     public function getPreferredByUser(User $user = null, array $filters = [], int $perPage = self::PER_PAGE): LengthAwarePaginator;
