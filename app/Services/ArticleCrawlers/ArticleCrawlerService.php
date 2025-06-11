@@ -2,24 +2,25 @@
 
 namespace App\Services\ArticleCrawlers;
 
-use App\Services\ArticleCrawlers\Interfaces\BBCNewsCrawlerInterface;
+use App\Services\ArticleCrawlers\Interfaces\ArticleCrawlerServiceInterface;
 use App\Services\ArticleCrawlers\Interfaces\CrawlerInterface;
-use App\Services\ArticleCrawlers\Interfaces\NewsAPICrawlerInterface;
 use Log;
 
-class ArticleCrawlerService
+class ArticleCrawlerService implements ArticleCrawlerServiceInterface
 {
     /** @var CrawlerInterface[] */
     private array $crawlers;
 
-    public function __construct(
-        BBCNewsCrawlerInterface $bbcNewsCrawler,
-        NewsAPICrawlerInterface $newsAPICrawler,
-    ) {
-        $this->crawlers = [
-            $bbcNewsCrawler,
-            $newsAPICrawler,
-        ];
+    public function __construct()
+    {
+        $this->crawlers = [];
+    }
+
+    public function addCrawler(CrawlerInterface $crawler): self
+    {
+        $this->crawlers[] = $crawler;
+
+        return $this;
     }
 
     public function crawl(): void

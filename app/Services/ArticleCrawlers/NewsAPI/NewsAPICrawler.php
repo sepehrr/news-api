@@ -6,13 +6,14 @@ use App\Models\Article;
 use App\Models\Author;
 use App\Repositories\Interfaces\SourceRepositoryInterface;
 use App\Services\ArticleCrawlers\BaseCrawler;
+use App\Services\ArticleCrawlers\Interfaces\CrawlerInterface;
 use App\Services\ArticleCrawlers\Interfaces\NewsAPIClientInterface;
 use App\Services\ArticleCrawlers\Interfaces\NewsAPICrawlerInterface;
 use App\Services\Interfaces\ArticleServiceInterface;
 use Illuminate\Validation\ValidationException;
 use Log;
 
-class NewsAPICrawler extends BaseCrawler implements NewsAPICrawlerInterface
+class NewsAPICrawler extends BaseCrawler implements NewsAPICrawlerInterface, CrawlerInterface
 {
     public function __construct(
         NewsAPIClientInterface $client,

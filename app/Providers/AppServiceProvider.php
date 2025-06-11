@@ -6,8 +6,10 @@ use App\Repositories\ArticleRepository;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use App\Repositories\Interfaces\SourceRepositoryInterface;
 use App\Repositories\SourceRepository;
+use App\Services\ArticleCrawlers\ArticleCrawlerService;
 use App\Services\ArticleCrawlers\BBCNews\BBCNewsClient;
 use App\Services\ArticleCrawlers\BBCNews\BBCNewsCrawler;
+use App\Services\ArticleCrawlers\Interfaces\ArticleCrawlerServiceInterface;
 use App\Services\ArticleCrawlers\Interfaces\BBCNewsClientInterface;
 use App\Services\ArticleCrawlers\Interfaces\BBCNewsCrawlerInterface;
 use App\Services\ArticleCrawlers\Interfaces\CrawlerInterface;
@@ -56,6 +58,8 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(NewsAPICrawler::class),
             ];
         });
+
+        $this->app->singleton(ArticleCrawlerServiceInterface::class, ArticleCrawlerService::class);
     }
 
     /**

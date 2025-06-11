@@ -7,11 +7,12 @@ use App\Repositories\Interfaces\SourceRepositoryInterface;
 use App\Services\ArticleCrawlers\BaseCrawler;
 use App\Services\ArticleCrawlers\Interfaces\BBCNewsClientInterface;
 use App\Services\ArticleCrawlers\Interfaces\BBCNewsCrawlerInterface;
+use App\Services\ArticleCrawlers\Interfaces\CrawlerInterface;
 use App\Services\Interfaces\ArticleServiceInterface;
 use Illuminate\Validation\ValidationException;
 use Log;
 
-class BBCNewsCrawler extends BaseCrawler implements BBCNewsCrawlerInterface
+class BBCNewsCrawler extends BaseCrawler implements BBCNewsCrawlerInterface, CrawlerInterface
 {
     public function __construct(
         BBCNewsClientInterface $client,
