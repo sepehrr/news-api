@@ -10,6 +10,7 @@ use App\Services\ArticleCrawlers\BBCNews\BBCNewsClient;
 use App\Services\ArticleCrawlers\BBCNews\BBCNewsCrawler;
 use App\Services\ArticleCrawlers\Interfaces\BBCNewsClientInterface;
 use App\Services\ArticleCrawlers\Interfaces\BBCNewsCrawlerInterface;
+use App\Services\ArticleCrawlers\Interfaces\CrawlerInterface;
 use App\Services\ArticleCrawlers\Interfaces\NewsAPIClientInterface;
 use App\Services\ArticleCrawlers\Interfaces\NewsAPICrawlerInterface;
 use App\Services\ArticleCrawlers\NewsAPI\NewsAPIClient;
@@ -48,6 +49,13 @@ class AppServiceProvider extends ServiceProvider
         // Bind NewsAPI interfaces
         $this->app->bind(NewsAPICrawlerInterface::class, NewsAPICrawler::class);
         $this->app->bind(NewsAPIClientInterface::class, NewsAPIClient::class);
+
+        $this->app->bind(CrawlerInterface::class, function ($app) {
+            return [
+                $app->make(BBCNewsCrawler::class),
+                $app->make(NewsAPICrawler::class),
+            ];
+        });
     }
 
     /**

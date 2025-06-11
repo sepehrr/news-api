@@ -18,8 +18,6 @@ use Illuminate\Http\Request;
  */
 class ArticleController extends Controller
 {
-    public const PER_PAGE = 15;
-
     public function __construct(
         private ArticleServiceInterface $articleService
     ) {
@@ -99,7 +97,7 @@ class ArticleController extends Controller
     {
         $articles = $this->articleService->getPaginatedArticles(
             $request->all(),
-            $request->get('per_page', self::PER_PAGE)
+            $request->get('per_page')
         );
 
         return ArticleResource::collection($articles);

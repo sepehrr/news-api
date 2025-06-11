@@ -8,12 +8,10 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 interface ArticleServiceInterface
 {
-    public const PER_PAGE = 15;
-
     /**
      * Get paginated list of articles with filters
      */
-    public function getPaginatedArticles(array $filters, int $perPage = self::PER_PAGE): LengthAwarePaginator;
+    public function getPaginatedArticles(array $filters, ?int $perPage = null): LengthAwarePaginator;
 
     /**
      * Get article by ID
@@ -23,7 +21,7 @@ interface ArticleServiceInterface
     /**
      * Get personalized feed for a user
      */
-    public function getPersonalizedFeed(User $user, array $filters, int $perPage = self::PER_PAGE): LengthAwarePaginator;
+    public function getPersonalizedFeed(User $user, array $filters, ?int $perPage = null): LengthAwarePaginator;
 
     /**
      * Create a new article

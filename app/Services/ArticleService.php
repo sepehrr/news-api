@@ -32,8 +32,9 @@ class ArticleService implements ArticleServiceInterface
     /**
      * Get paginated list of articles with filters
      */
-    public function getPaginatedArticles(array $filters, int $perPage = self::PER_PAGE): LengthAwarePaginator
+    public function getPaginatedArticles(array $filters, ?int $perPage = null): LengthAwarePaginator
     {
+        $perPage = $perPage ?? config('pagination.per_page');
         $hash = $this->hashRequestService->hash('articles:query', $filters);
 
         return Cache::remember("articles:query:{$hash}", self::CACHE_TTL, function () use ($filters, $perPage) {
@@ -60,8 +61,10 @@ class ArticleService implements ArticleServiceInterface
     /**
      * Get personalized feed for a user
      */
-    public function getPersonalizedFeed(User $user, array $filters, int $perPage = self::PER_PAGE): LengthAwarePaginator
+    public function getPersonalizedFeed(User $user, array $filters, ?int $perPage = null): LengthAwarePaginator
     {
+        $perPage = $perPage ?? config('pagination.per_page');
+
         return $this->articleRepository->getPreferredByUser($user, $filters, $perPage);
     }
 

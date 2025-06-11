@@ -10,15 +10,13 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class ArticleRepository implements ArticleRepositoryInterface
 {
-    public const PER_PAGE = 15;
-
     public function __construct(
         protected Article $model,
         protected ArticleListFilter $filter
     ) {
     }
 
-    public function getPaginated(array $filters = [], int $perPage = self::PER_PAGE): LengthAwarePaginator
+    public function getPaginated(array $filters = [], ?int $perPage = null): LengthAwarePaginator
     {
         $query = $this->model->newQuery();
         $this->filter->query($query)->filters($filters)->apply();
@@ -39,7 +37,7 @@ class ArticleRepository implements ArticleRepositoryInterface
             ->findOrFail($id);
     }
 
-    public function getPreferredByUser(User $user = null, array $filters = [], int $perPage = self::PER_PAGE): LengthAwarePaginator
+    public function getPreferredByUser(User $user = null, array $filters = [], ?int $perPage = null): LengthAwarePaginator
     {
         $query = $this->model->newQuery();
         $query->preferredBy($user);
